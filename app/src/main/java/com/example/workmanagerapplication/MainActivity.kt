@@ -4,15 +4,20 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.Toast
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.work.*
 import com.example.workmanagerapplication.databinding.ActivityMainBinding
-import pub.devrel.easypermissions.EasyPermissions
+
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
+    lateinit var viewModel: MainActivityViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,9 +25,13 @@ class MainActivity : AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
+        viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+
         binding.button.setOnClickListener {
             checkPermissions()
         }
+
+        observerLiveData()
     }
 
     fun checkPermissions() {
@@ -43,7 +52,41 @@ class MainActivity : AppCompatActivity() {
                 1
             )
         } else {
-        // izinler verildi
+            viewModel.getDataFromAPI()
         }
+    }
+
+    fun observerLiveData() {
+        viewModel.imagesListLiveData.observe(this, Observer {
+            it?.let {
+                val data = Data.Builder().putStringArray("list", it.toTypedArray()).build()
+                val constraints = Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .setRequiresCharging(false)
+                    .build()
+                val myWorkRequest: WorkRequest =
+                    OneTimeWorkRequestBuilder<DownloadImages>()
+                        .setConstraints(constraints)
+                        .setInputData(data)
+                        .build()
+                WorkManager.getInstance(this).enqueue(myWorkRequest)
+                WorkManager.getInstance(this).getWorkInfoByIdLiveData(myWorkRequest.id)
+                    .observe(this,
+                        Observer {
+                            if (it.state == WorkInfo.State.SUCCEEDED) {
+                                binding.progressBar.visibility = View.GONE
+                                Toast.makeText(this,"İndirme Tamamlandı.",Toast.LENGTH_SHORT).show()
+
+                            } else if (it.state == WorkInfo.State.FAILED) {
+                                binding.progressBar.visibility = View.GONE
+                                Toast.makeText(this,"Hata oluştu.",Toast.LENGTH_SHORT).show()
+
+                            } else if (it.state == WorkInfo.State.RUNNING) {
+                                binding.progressBar.visibility = View.VISIBLE
+                                Toast.makeText(this,"İndirme başladı.",Toast.LENGTH_SHORT).show()
+                            }
+                        })
+            }
+        })
     }
 }
