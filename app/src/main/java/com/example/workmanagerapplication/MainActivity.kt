@@ -31,7 +31,9 @@ class MainActivity : AppCompatActivity() {
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = imagesAdapter
-
+        binding.buttonCancel.setOnClickListener {
+            WorkManager.getInstance(this).cancelAllWork()
+        }
         binding.button.setOnClickListener {
             checkPermissions()
         }
@@ -80,19 +82,42 @@ class MainActivity : AppCompatActivity() {
                         Observer {
                             if (it.state == WorkInfo.State.SUCCEEDED) {
                                 binding.progressBar.visibility = View.GONE
+                                binding.button.text = "Resimleri İndir"
+                                binding.button.isEnabled = true
+                                binding.buttonCancel.visibility = View.GONE
                                 Toast.makeText(this, "İndirme Tamamlandı.", Toast.LENGTH_SHORT)
                                     .show()
                                 viewModel.getImagesFromDatabase(this)
 
                             } else if (it.state == WorkInfo.State.FAILED) {
                                 binding.progressBar.visibility = View.GONE
+                                binding.button.text = "Resimleri İndir"
+                                binding.button.isEnabled = true
+                                binding.buttonCancel.visibility = View.GONE
                                 Toast.makeText(this, "Hata oluştu.", Toast.LENGTH_SHORT).show()
                                 viewModel.getImagesFromDatabase(this)
                                 WorkManager.getInstance(this).cancelAllWork()
 
                             } else if (it.state == WorkInfo.State.RUNNING) {
                                 binding.progressBar.visibility = View.VISIBLE
+                                binding.button.text = "İndiriliyor..."
+                                binding.button.isEnabled = false
+                                binding.buttonCancel.visibility = View.GONE
                                 Toast.makeText(this, "İndirme başladı.", Toast.LENGTH_SHORT).show()
+                            }
+                            else if (it.state == WorkInfo.State.ENQUEUED) {
+                                binding.progressBar.visibility = View.GONE
+                                binding.button.text = "Lütfen Bekleyin."
+                                binding.button.isEnabled = false
+                                binding.buttonCancel.visibility = View.VISIBLE
+                                viewModel.getImagesFromDatabase(this)
+                            }
+                            else if (it.state == WorkInfo.State.CANCELLED) {
+                                binding.progressBar.visibility = View.GONE
+                                binding.button.text = "Resimleri İndir"
+                                binding.button.isEnabled = true
+                                binding.buttonCancel.visibility = View.GONE
+                                viewModel.getImagesFromDatabase(this)
                             }
                         })
             }

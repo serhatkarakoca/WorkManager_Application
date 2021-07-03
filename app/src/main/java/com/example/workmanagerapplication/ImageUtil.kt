@@ -14,24 +14,23 @@ import java.io.File.separator
 object ImageUtil {
 
     fun saveImage(bitmap: Bitmap, context: Context): String? {
-        //Generating a file name
+
         val filename = "${System.currentTimeMillis()}.jpg"
 
-        //Output stream
+
         var fos: OutputStream? = null
         var imagesDir: File? = null
         var image: File? = null
 
-        //For devices running android >= Q
+
         imagesDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         image = File(imagesDir, filename)
-        //getting the contentResolver
+
         context.contentResolver?.also { resolver ->
 
-            //Content resolver will process the contentvalues
             val contentValues = ContentValues().apply {
 
-                //putting file information in content values
+
                 put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
                 put(MediaStore.MediaColumns.MIME_TYPE, "image/jpg")
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
@@ -39,17 +38,14 @@ object ImageUtil {
             }
 
 
-            //Inserting the contentValues to contentResolver and getting the Uri
             val imageUri: Uri? =
                 resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
 
-            //Opening an outputstream with the Uri that we got
             fos = imageUri?.let { resolver.openOutputStream(it) }
         }
 
-
         fos?.use {
-            //Finally writing the bitmap to the output stream that we opened
+
             bitmap.compress(Bitmap.CompressFormat.PNG, 80, it)
             it.flush()
             it.close()
