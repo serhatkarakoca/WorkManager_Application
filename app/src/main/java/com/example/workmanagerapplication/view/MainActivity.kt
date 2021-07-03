@@ -1,4 +1,4 @@
-package com.example.workmanagerapplication
+package com.example.workmanagerapplication.view
 
 import android.Manifest
 import android.content.pm.PackageManager
@@ -12,8 +12,10 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.*
+import com.example.workmanagerapplication.viewmodel.MainActivityViewModel
+import com.example.workmanagerapplication.adapter.ImagesAdapter
 import com.example.workmanagerapplication.databinding.ActivityMainBinding
-
+import com.example.workmanagerapplication.service.DownloadImages
 
 
 class MainActivity : AppCompatActivity() {

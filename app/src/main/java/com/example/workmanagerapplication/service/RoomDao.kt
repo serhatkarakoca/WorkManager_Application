@@ -1,8 +1,9 @@
-package com.example.workmanagerapplication
+package com.example.workmanagerapplication.service
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.workmanagerapplication.model.RecyclerItemModel
 
 @Dao
 interface RoomDao {

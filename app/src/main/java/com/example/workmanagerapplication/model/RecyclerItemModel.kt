@@ -1,4 +1,4 @@
-package com.example.workmanagerapplication
+package com.example.workmanagerapplication.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

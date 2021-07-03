@@ -1,10 +1,11 @@
-package com.example.workmanagerapplication
+package com.example.workmanagerapplication.adapter
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
+import com.example.workmanagerapplication.R
+import com.example.workmanagerapplication.model.RecyclerItemModel
 import com.example.workmanagerapplication.databinding.ItemImageBinding
 
 class ImagesAdapter (var list:ArrayList<RecyclerItemModel>): RecyclerView.Adapter<ImagesAdapter.ImagesViewHolder>() {

@@ -1,10 +1,13 @@
-package com.example.workmanagerapplication
+package com.example.workmanagerapplication.viewmodel
 
 
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.workmanagerapplication.service.ImagesDatabase
+import com.example.workmanagerapplication.model.RecyclerItemModel
+import com.example.workmanagerapplication.service.ImagesApiService
 import kotlinx.coroutines.launch
 
 

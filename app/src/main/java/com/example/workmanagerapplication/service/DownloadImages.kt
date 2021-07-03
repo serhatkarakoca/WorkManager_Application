@@ -1,9 +1,11 @@
-package com.example.workmanagerapplication
+package com.example.workmanagerapplication.service
 
 import android.content.Context
 import android.graphics.BitmapFactory
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.example.workmanagerapplication.util.ImageUtil
+import com.example.workmanagerapplication.model.RecyclerItemModel
 import okhttp3.OkHttpClient
 import okhttp3.Request
 

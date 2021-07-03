@@ -5,7 +5,7 @@
     <data>
         <variable
             name="image"
-            type="com.example.workmanagerapplication.RecyclerItemModel" />
+            type="com.example.workmanagerapplication.model.RecyclerItemModel" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
