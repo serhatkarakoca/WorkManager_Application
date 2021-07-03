@@ -13,7 +13,7 @@ import java.io.File.separator
 
 object ImageUtil {
 
-    fun saveImage(bitmap: Bitmap, context: Context): String {
+    fun saveImage(bitmap: Bitmap, context: Context): String? {
         //Generating a file name
         val filename = "${System.currentTimeMillis()}.jpg"
 
@@ -55,6 +55,6 @@ object ImageUtil {
             it.close()
             return image.absolutePath
         }
-        return ""
+        return null
     }
 }
