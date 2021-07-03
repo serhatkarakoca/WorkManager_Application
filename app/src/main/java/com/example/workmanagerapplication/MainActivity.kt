@@ -33,11 +33,13 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = imagesAdapter
 
         binding.button.setOnClickListener {
             checkPermissions()
         }
-
+        viewModel.getImagesFromDatabase(this)
         observerLiveData()
     }
 
@@ -59,7 +61,8 @@ class MainActivity : AppCompatActivity() {
                 1
             )
         } else {
-            viewModel.getDataFromAPI()
+
+            viewModel.getDataFromAPI(this)
         }
     }
 
@@ -81,11 +84,15 @@ class MainActivity : AppCompatActivity() {
                         Observer {
                             if (it.state == WorkInfo.State.SUCCEEDED) {
                                 binding.progressBar.visibility = View.GONE
-                                Toast.makeText(this,"İndirme Tamamlandı.",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "İndirme Tamamlandı.", Toast.LENGTH_SHORT)
+                                    .show()
+                                viewModel.getImagesFromDatabase(this)
 
                             } else if (it.state == WorkInfo.State.FAILED) {
                                 binding.progressBar.visibility = View.GONE
-                                Toast.makeText(this,"Hata oluştu.",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "Hata oluştu.", Toast.LENGTH_SHORT).show()
+                                viewModel.getImagesFromDatabase(this)
+                                WorkManager.getInstance(this).cancelAllWork()
 
                             } else if (it.state == WorkInfo.State.RUNNING) {
                                 binding.progressBar.visibility = View.VISIBLE
@@ -94,5 +101,11 @@ class MainActivity : AppCompatActivity() {
                         })
             }
         })
+        viewModel.listOfImages.observe(this, Observer {
+            it?.let {
+                imagesAdapter.updateList(it)
+            }
+        })
     }
+
 }

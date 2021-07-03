@@ -14,9 +14,12 @@ class MainActivityViewModel : ViewModel() {
 
     private val imagesApiService = ImagesApiService()
     val imagesListLiveData = MutableLiveData<List<String>>()
-     fun getDataFromAPI() {
+    val listOfImages = MutableLiveData<List<RecyclerItemModel>>()
 
+     fun getDataFromAPI(context: Context) {
         viewModelScope.launch {
+            val dao = ImagesDatabase(context).roomDao()
+            dao.deleteAllImages()
            val response = imagesApiService.getData()
             if (response.isSuccessful){
                 response.body()?.let {
@@ -28,6 +31,15 @@ class MainActivityViewModel : ViewModel() {
 
                 }
             }
+        }
+
+    }
+
+     fun getImagesFromDatabase(context:Context){
+        viewModelScope.launch {
+            val dao = ImagesDatabase(context).roomDao()
+            if (dao.getAllImages().isNotEmpty())
+                listOfImages.value = dao.getAllImages()
         }
 
     }
