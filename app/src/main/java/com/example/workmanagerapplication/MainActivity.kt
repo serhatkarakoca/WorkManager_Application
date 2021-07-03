@@ -5,19 +5,26 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.*
 import com.example.workmanagerapplication.databinding.ActivityMainBinding
+import kotlinx.coroutines.coroutineScope
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 
 class MainActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityMainBinding
     lateinit var viewModel: MainActivityViewModel
+    private var imagesAdapter = ImagesAdapter(arrayListOf())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,8 +53,8 @@ class MainActivity : AppCompatActivity() {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
                 ),
                 1
             )
@@ -62,7 +69,6 @@ class MainActivity : AppCompatActivity() {
                 val data = Data.Builder().putStringArray("list", it.toTypedArray()).build()
                 val constraints = Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .setRequiresCharging(false)
                     .build()
                 val myWorkRequest: WorkRequest =
                     OneTimeWorkRequestBuilder<DownloadImages>()
@@ -83,7 +89,7 @@ class MainActivity : AppCompatActivity() {
 
                             } else if (it.state == WorkInfo.State.RUNNING) {
                                 binding.progressBar.visibility = View.VISIBLE
-                                Toast.makeText(this,"İndirme başladı.",Toast.LENGTH_SHORT).show()
+                                Toast.makeText(this, "İndirme başladı.", Toast.LENGTH_SHORT).show()
                             }
                         })
             }

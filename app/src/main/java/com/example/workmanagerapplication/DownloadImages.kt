@@ -6,17 +6,24 @@ import androidx.work.Worker
 import androidx.work.WorkerParameters
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import org.greenrobot.eventbus.EventBus
 
 class DownloadImages(val context: Context, workerParams: WorkerParameters) : Worker(context,
     workerParams
 ) {
-    override fun doWork(): Result {
-        val list = inputData.getStringArray("list")?.toList()
-        list?.forEachIndexed{ _, url ->
-            downloadImages(url)
-        }
 
-        return Result.success()
+    override fun doWork(): Result {
+      return try {
+            val list = inputData.getStringArray("list")?.toList()
+            list?.forEachIndexed{ _, url ->
+                downloadImages(url)
+            }
+
+          Result.success()
+
+        }catch (e:RuntimeException){
+            Result.failure()
+        }
     }
 
     fun downloadImages(url:String){
@@ -26,11 +33,19 @@ class DownloadImages(val context: Context, workerParams: WorkerParameters) : Wor
             .build()
         try {
             val response = client.newCall(request).execute()
-            val bitmap = BitmapFactory.decodeStream(response.body?.byteStream())
-            ImageUtil.saveImage(bitmap, context)
+            val inputStream = response.body?.byteStream()
+            val bitmap = BitmapFactory.decodeStream(inputStream)
+            val path = ImageUtil.saveImage(bitmap, context)
+            val item = RecyclerItemModel(url,true,path)
+            val dao = ImagesDatabase(context).roomDao()
+            dao.insertAll(item)
+
 
         } catch (e: Exception) {
             e.printStackTrace()
+            val item = RecyclerItemModel(url,true,null)
+            val dao = ImagesDatabase(context).roomDao()
+            dao.insertAll(item)
         }
     }
 }
