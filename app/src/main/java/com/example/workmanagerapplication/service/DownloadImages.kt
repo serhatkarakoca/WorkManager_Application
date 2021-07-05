@@ -2,34 +2,42 @@ package com.example.workmanagerapplication.service
 
 import android.content.Context
 import android.graphics.BitmapFactory
+import androidx.work.CoroutineWorker
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import com.example.workmanagerapplication.util.ImageUtil
 import com.example.workmanagerapplication.model.RecyclerItemModel
+import kotlinx.coroutines.*
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
 
-class DownloadImages(private val context: Context, workerParams: WorkerParameters) : Worker(context,
-    workerParams
-) {
+class DownloadImages(private val context: Context, workerParams: WorkerParameters) :
+    CoroutineWorker(
+        context,
+        workerParams
+    ) {
 
-    override fun doWork(): Result {
-        return try {
-            val list = inputData.getStringArray("list")?.toList()
-            list?.forEachIndexed{ _, url ->
-                downloadImages(url)
-            }
+    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+        val list = inputData.getStringArray("list")?.toList()!!
+        try {
+            list.map {
+                async {
+                    downloadImages(it)
+                }
+            }.awaitAll()
 
             Result.success()
 
-        }catch (e:Exception){
+        } catch (e: Exception) {
             e.printStackTrace()
             Result.failure()
         }
     }
 
-    private fun downloadImages(url:String){
+
+    private fun downloadImages(url: String) {
+        println("indiriliyor: "+url)
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(url)
@@ -39,14 +47,14 @@ class DownloadImages(private val context: Context, workerParams: WorkerParameter
             val inputStream = response.body?.byteStream()
             val bitmap = BitmapFactory.decodeStream(inputStream)
             val path = ImageUtil.saveImage(bitmap, context)
-            val item = RecyclerItemModel(url, !path.isNullOrEmpty(),path)
+            val item = RecyclerItemModel(url, !path.isNullOrEmpty(), path)
             val dao = ImagesDatabase(context).roomDao()
             dao.insertAll(item)
-
+            println("indi: "+url)
 
         } catch (e: Exception) {
             e.printStackTrace()
-            val item = RecyclerItemModel(url,false,null)
+            val item = RecyclerItemModel(url, false, null)
             val dao = ImagesDatabase(context).roomDao()
             dao.insertAll(item)
         }

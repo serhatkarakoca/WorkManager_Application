@@ -16,6 +16,8 @@ import com.example.workmanagerapplication.viewmodel.MainActivityViewModel
 import com.example.workmanagerapplication.adapter.ImagesAdapter
 import com.example.workmanagerapplication.databinding.ActivityMainBinding
 import com.example.workmanagerapplication.service.DownloadImages
+import kotlinx.coroutines.Job
+import kotlin.coroutines.coroutineContext
 
 
 class MainActivity : AppCompatActivity() {
@@ -37,8 +39,9 @@ class MainActivity : AppCompatActivity() {
             WorkManager.getInstance(this).cancelAllWork()
         }
         binding.button.setOnClickListener {
-            checkPermissions()
+            viewModel.getDataFromAPI(this)
         }
+
         viewModel.getImagesFromDatabase(this)
         observerLiveData()
     }
@@ -90,6 +93,8 @@ class MainActivity : AppCompatActivity() {
                                 Toast.makeText(this, "İndirme Tamamlandı.", Toast.LENGTH_SHORT)
                                     .show()
                                 viewModel.getImagesFromDatabase(this)
+                                println("success")
+
 
                             } else if (it.state == WorkInfo.State.FAILED) {
                                 binding.progressBar.visibility = View.GONE
@@ -98,6 +103,7 @@ class MainActivity : AppCompatActivity() {
                                 binding.buttonCancel.visibility = View.GONE
                                 Toast.makeText(this, "Hata oluştu.", Toast.LENGTH_SHORT).show()
                                 viewModel.getImagesFromDatabase(this)
+                                println("failed")
                                 WorkManager.getInstance(this).cancelAllWork()
 
                             } else if (it.state == WorkInfo.State.RUNNING) {
@@ -105,6 +111,7 @@ class MainActivity : AppCompatActivity() {
                                 binding.button.text = "İndiriliyor..."
                                 binding.button.isEnabled = false
                                 binding.buttonCancel.visibility = View.GONE
+                                println("running")
                                 Toast.makeText(this, "İndirme başladı.", Toast.LENGTH_SHORT).show()
                             }
                             else if (it.state == WorkInfo.State.ENQUEUED) {
@@ -112,21 +119,25 @@ class MainActivity : AppCompatActivity() {
                                 binding.button.text = "Lütfen Bekleyin."
                                 binding.button.isEnabled = false
                                 binding.buttonCancel.visibility = View.VISIBLE
-                                viewModel.getImagesFromDatabase(this)
+                                println("enqued")
+                                //viewModel.getImagesFromDatabase(this)
                             }
                             else if (it.state == WorkInfo.State.CANCELLED) {
                                 binding.progressBar.visibility = View.GONE
                                 binding.button.text = "Resimleri İndir"
                                 binding.button.isEnabled = true
                                 binding.buttonCancel.visibility = View.GONE
+                                println("cancelled")
                                 viewModel.getImagesFromDatabase(this)
                             }
+
                         })
             }
         })
         viewModel.listOfImages.observe(this, Observer {
             it?.let {
                 imagesAdapter.updateList(it)
+                println("toplam: "+it.size)
             }
         })
     }
