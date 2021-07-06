@@ -8,9 +8,10 @@ import com.example.workmanagerapplication.R
 import com.example.workmanagerapplication.model.RecyclerItemModel
 import com.example.workmanagerapplication.databinding.ItemImageBinding
 
-class ImagesAdapter (var list:ArrayList<RecyclerItemModel>): RecyclerView.Adapter<ImagesAdapter.ImagesViewHolder>() {
+class ImagesAdapter(var list: ArrayList<RecyclerItemModel>) :
+    RecyclerView.Adapter<ImagesAdapter.ImagesViewHolder>() {
 
-    class ImagesViewHolder(var view:ItemImageBinding):RecyclerView.ViewHolder(view.root)
+    class ImagesViewHolder(var view: ItemImageBinding) : RecyclerView.ViewHolder(view.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImagesViewHolder {
         val inflater = LayoutInflater.from(parent.context)
@@ -30,6 +31,7 @@ class ImagesAdapter (var list:ArrayList<RecyclerItemModel>): RecyclerView.Adapte
     override fun getItemCount(): Int {
         return list.size
     }
+
     fun updateList(newList: List<RecyclerItemModel>) {
         list.clear()
         list.addAll(newList)

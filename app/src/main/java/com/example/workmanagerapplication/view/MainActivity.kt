@@ -33,8 +33,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(view)
 
         viewModel = ViewModelProvider(this).get(MainActivityViewModel::class.java)
+
         binding.recyclerView.layoutManager = LinearLayoutManager(this)
         binding.recyclerView.adapter = imagesAdapter
+
         binding.buttonCancel.setOnClickListener {
             WorkManager.getInstance(this).cancelAllWork()
         }
@@ -43,31 +45,10 @@ class MainActivity : AppCompatActivity() {
         }
 
         viewModel.getImagesFromDatabase(this)
+
         observerLiveData()
     }
 
-    fun checkPermissions() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
-            ActivityCompat.requestPermissions(
-                this,
-                arrayOf(
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ),
-                1
-            )
-        } else {
-
-            viewModel.getDataFromAPI(this)
-        }
-    }
 
     fun observerLiveData() {
         viewModel.imagesListLiveData.observe(this, Observer {
@@ -113,16 +94,14 @@ class MainActivity : AppCompatActivity() {
                                 binding.buttonCancel.visibility = View.GONE
                                 println("running")
                                 Toast.makeText(this, "İndirme başladı.", Toast.LENGTH_SHORT).show()
-                            }
-                            else if (it.state == WorkInfo.State.ENQUEUED) {
+                            } else if (it.state == WorkInfo.State.ENQUEUED) {
                                 binding.progressBar.visibility = View.GONE
                                 binding.button.text = "Lütfen Bekleyin."
                                 binding.button.isEnabled = false
                                 binding.buttonCancel.visibility = View.VISIBLE
                                 println("enqued")
                                 //viewModel.getImagesFromDatabase(this)
-                            }
-                            else if (it.state == WorkInfo.State.CANCELLED) {
+                            } else if (it.state == WorkInfo.State.CANCELLED) {
                                 binding.progressBar.visibility = View.GONE
                                 binding.button.text = "Resimleri İndir"
                                 binding.button.isEnabled = true
@@ -137,7 +116,7 @@ class MainActivity : AppCompatActivity() {
         viewModel.listOfImages.observe(this, Observer {
             it?.let {
                 imagesAdapter.updateList(it)
-                println("toplam: "+it.size)
+                println("toplam: " + it.size)
             }
         })
     }

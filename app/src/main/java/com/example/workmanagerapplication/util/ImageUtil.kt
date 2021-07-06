@@ -12,12 +12,21 @@ import java.io.*
 object ImageUtil {
 
     fun saveImage(bitmap: Bitmap, context: Context): String {
+        lateinit var newDirection: File
+
         val fileName = "${System.currentTimeMillis()}.jpg"
-        val file = File(context.filesDir, fileName)
+        val direction = File(context.filesDir.toString()) // default folder /files
+
+        newDirection = File(direction, "/pics") // if you want to create new folder
+        if (!newDirection.exists())
+            newDirection.createNewFile()
+
+
+        val file = File(newDirection, fileName)
         context.openFileOutput(fileName, Context.MODE_PRIVATE).use {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, it)
             it.close();
         }
-       return file.absolutePath
+        return file.absolutePath
     }
 }

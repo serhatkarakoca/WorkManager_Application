@@ -16,7 +16,7 @@ class ImagesApiService {
         .build()
         .create(RetrofitAPI::class.java)
 
-   suspend fun getData(): Response<List<ImageModel>> {
+    suspend fun getData(): Response<List<ImageModel>> {
         return api.getImages()
     }
 
